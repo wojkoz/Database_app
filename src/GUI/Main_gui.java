@@ -4,13 +4,15 @@
  * and open the template in the editor.
  */
 package GUI;
+import database.Database;
 
 /**
  *
  * @author student
  */
 public class Main_gui extends javax.swing.JFrame {
-
+    
+    private Database db;
     /**
      * Creates new form Main_gui
      */
@@ -39,10 +41,16 @@ public class Main_gui extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         password_input = new javax.swing.JPasswordField();
+        close_connection_button = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         connect_button.setText("Connect");
+        connect_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                connect_buttonMouseClicked(evt);
+            }
+        });
 
         username_input.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -82,7 +90,12 @@ public class Main_gui extends javax.swing.JFrame {
 
         jTabbedPane.addTab("tab1", jScrollPane1);
 
-        password_input.setText("jPasswordField1");
+        close_connection_button.setText("Close connection");
+        close_connection_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                close_connection_buttonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -90,26 +103,28 @@ public class Main_gui extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(49, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jTabbedPane)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
-                        .addComponent(jLabel4)
-                        .addGap(18, 18, 18)
-                        .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
-                        .addComponent(connect_button)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(close_connection_button)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jTabbedPane)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel2)
+                            .addGap(18, 18, 18)
+                            .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(21, 21, 21)
+                            .addComponent(jLabel3)
+                            .addGap(18, 18, 18)
+                            .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(31, 31, 31)
+                            .addComponent(jLabel4)
+                            .addGap(18, 18, 18)
+                            .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(46, 46, 46)
+                            .addComponent(connect_button))))
                 .addGap(34, 34, 34))
         );
         layout.setVerticalGroup(
@@ -128,7 +143,9 @@ public class Main_gui extends javax.swing.JFrame {
                     .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(41, 41, 41)
                 .addComponent(jTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(close_connection_button)
+                .addContainerGap())
         );
 
         pack();
@@ -145,6 +162,16 @@ public class Main_gui extends javax.swing.JFrame {
     private void port_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_port_inputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_port_inputActionPerformed
+
+    private void connect_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connect_buttonMouseClicked
+        db = new Database();
+        db.result();
+        
+    }//GEN-LAST:event_connect_buttonMouseClicked
+
+    private void close_connection_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_connection_buttonActionPerformed
+        db.closeConnection();
+    }//GEN-LAST:event_close_connection_buttonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -182,6 +209,7 @@ public class Main_gui extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton close_connection_button;
     private javax.swing.JButton connect_button;
     private javax.swing.JTextField ip_input;
     private javax.swing.JLabel jLabel1;
