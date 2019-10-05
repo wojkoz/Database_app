@@ -191,20 +191,18 @@ public class Main_gui extends javax.swing.JFrame {
         }
          
         
-        String[][] data = { 
-            { "Kundan Kumar Jha", "4031", "CSE" }, 
-            { "Anand Jha", "6014", "IT" } 
-        }; 
+        
   
         // Column Names 
         String[] columnNames = { "Name", "Roll Number", "Department" }; 
         
         tab_pane.setVisible(true);
         
-        String[] tmp_columns = db.getColumns();
-        HashMap<String, ArrayList<String>> tmp_columns_data = db.getColumnsData();
+        HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
         
-        tab_pane.addTab("tab1", new JScrollPane(new JTable(data, columnNames)));
+        String[][] data = db.getRecords("studenci", "nr_albumu");
+        
+        tab_pane.addTab("studenci", new JScrollPane(new JTable(data, db.getColumnsNames("studenci"))));
         
         //combo box
         schema_combo_box.setVisible(true);

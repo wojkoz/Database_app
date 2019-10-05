@@ -11,7 +11,7 @@ public class Database {
     private final Statement st;
     private ResultSet rs;
     private final ArrayList<String> schemas, tables, columns;
-    private final HashMap<String, ArrayList<String>> columnsData;
+    private final HashMap<String, HashMap<String, ArrayList<String>>> table_column_data;
     private String currentScheme;
     
     public Database() throws ClassNotFoundException, SQLException{
@@ -24,7 +24,7 @@ public class Database {
         schemas = new ArrayList<>();
         tables = new ArrayList<>();
         columns = new ArrayList<>();
-        columnsData = new HashMap<>();
+        table_column_data = new HashMap<>();
 
     }
     
@@ -42,21 +42,27 @@ public class Database {
         
         //pobieranie danych do kolumn z tabel currentScheme
         for(int i=0; i < tables.size(); i++){
+            
             setColumnsName(md, currentScheme, tables.get(i));
+            HashMap<String, ArrayList<String>> tmp = new HashMap<>();
+            
+            
             for(int j=0; j < columns.size(); j++){
-                setColumnData(currentScheme, tables.get(i), columns.get(j));
+                tmp.put(columns.get(j), setColumnData(currentScheme, tables.get(i), columns.get(j)));
+                
             }
+            table_column_data.put(tables.get(i), tmp);
             columns.clear();
         }
         
-        System.out.println(columnsData.get("id_adresu"));
+        //System.out.println(table_column_data.get("studenci").get("nr_albumu").size());
 
         closeConnection();
   
     }
   
     
-    private void setColumnData(String scheme_name, String table_name, String column_name) throws SQLException{
+    private ArrayList<String> setColumnData(String scheme_name, String table_name, String column_name) throws SQLException{
         
         ArrayList<String> data = new ArrayList();
         
@@ -64,7 +70,8 @@ public class Database {
         while(rs.next()){
             data.add(rs.getString(column_name));
         }
-        columnsData.put(column_name, data);
+        //columnsData.put(column_name, data);
+        return data;
     }
     
     private void setColumnsName(DatabaseMetaData md, String scheme, String table_name) throws SQLException{
@@ -99,15 +106,41 @@ public class Database {
         return schemas;
     }
     
-    public String[] getColumns(){
-        return columns.toArray(new String[columns.size()]);
-    }
     
-    public HashMap<String, ArrayList<String>> getColumnsData(){
-        return columnsData;
+    public HashMap<String, HashMap<String, ArrayList<String>>> getTableColumnsData(){
+        return table_column_data;
     }
     
     public void setCurrentScheme(String scheme){
         currentScheme = scheme;
+    }
+    
+    public String[] getColumnsNames(String table_name){
+        ArrayList<String> key = new ArrayList<>();
+        table_column_data.get(table_name).forEach((k,v) -> key.add(k));
+        
+        return key.toArray(new String[key.size()]);
+    }
+    
+    public String[][] getRecords(String table_name, String first_column){
+        
+        ArrayList<String> key = new ArrayList<>();
+        ArrayList<ArrayList<String>> val = new ArrayList<>();
+        
+        table_column_data.get(table_name).forEach((k,v) -> key.add(k));
+        table_column_data.get(table_name).forEach((k,v) -> val.add(v));
+        
+        int row = key.size();
+        int col = val.get(0).size();
+                
+        String[][] tmp = new String[col][row];
+        
+        for(int i=0; i<col; i++){
+            for(int j=0; j<row; j++){
+                tmp[i][j] = val.get(j).get(i);
+            }
+        }
+
+        return tmp;
     }
 }
