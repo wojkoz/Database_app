@@ -6,8 +6,13 @@
 package GUI;
 import database.Database;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 
 /**
  *
@@ -16,12 +21,16 @@ import java.util.logging.Logger;
 public class Main_gui extends javax.swing.JFrame {
     
     private Database db;
+
     /**
      * Creates new form Main_gui
      */
     public Main_gui() {
         initComponents();
         close_connection_button.setVisible(false);
+        schema_combo_box.removeAllItems();
+        schema_combo_box.setVisible(false);
+        
     }
 
     /**
@@ -41,11 +50,10 @@ public class Main_gui extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTabbedPane = new javax.swing.JTabbedPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable = new javax.swing.JTable();
         password_input = new javax.swing.JPasswordField();
         close_connection_button = new javax.swing.JButton();
+        tab_pane = new javax.swing.JTabbedPane();
+        schema_combo_box = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -82,22 +90,17 @@ public class Main_gui extends javax.swing.JFrame {
 
         jLabel4.setText("Port");
 
-        jTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
-        jScrollPane1.setViewportView(jTable);
-
-        jTabbedPane.addTab("tab1", jScrollPane1);
-
         close_connection_button.setText("Close connection");
         close_connection_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 close_connection_buttonActionPerformed(evt);
+            }
+        });
+
+        schema_combo_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        schema_combo_box.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                schema_combo_boxActionPerformed(evt);
             }
         });
 
@@ -109,27 +112,31 @@ public class Main_gui extends javax.swing.JFrame {
                 .addContainerGap(49, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(close_connection_button)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jTabbedPane)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jLabel2)
-                            .addGap(18, 18, 18)
-                            .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(21, 21, 21)
-                            .addComponent(jLabel3)
-                            .addGap(18, 18, 18)
-                            .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(31, 31, 31)
-                            .addComponent(jLabel4)
-                            .addGap(18, 18, 18)
-                            .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(46, 46, 46)
-                            .addComponent(connect_button))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31)
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46)
+                        .addComponent(connect_button)))
                 .addGap(34, 34, 34))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(schema_combo_box, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tab_pane, javax.swing.GroupLayout.PREFERRED_SIZE, 716, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,9 +152,11 @@ public class Main_gui extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jLabel4)
                     .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(41, 41, 41)
-                .addComponent(jTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(schema_combo_box, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(tab_pane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(close_connection_button)
                 .addContainerGap())
         );
@@ -180,13 +189,28 @@ public class Main_gui extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
         }
-         String[][] data = { 
+         
+        
+        String[][] data = { 
             { "Kundan Kumar Jha", "4031", "CSE" }, 
             { "Anand Jha", "6014", "IT" } 
         }; 
   
         // Column Names 
         String[] columnNames = { "Name", "Roll Number", "Department" }; 
+        
+        tab_pane.setVisible(true);
+        
+        String[] tmp_columns = db.getColumns();
+        HashMap<String, ArrayList<String>> tmp_columns_data = db.getColumnsData();
+        
+        tab_pane.addTab("tab1", new JScrollPane(new JTable(data, columnNames)));
+        
+        //combo box
+        schema_combo_box.setVisible(true);
+        ArrayList<String> tmp_schemas = db.getSchemas();
+        //setting combox list
+        tmp_schemas.forEach((i)-> schema_combo_box.addItem(i));
         
         
 
@@ -196,7 +220,14 @@ public class Main_gui extends javax.swing.JFrame {
 
         connect_button.setVisible(true);
         close_connection_button.setVisible(false);
+        
+        //usuwanie zakładek
+        tab_pane.remove(0);
     }//GEN-LAST:event_close_connection_buttonActionPerformed
+
+    private void schema_combo_boxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schema_combo_boxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_schema_combo_boxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -241,11 +272,10 @@ public class Main_gui extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTabbedPane jTabbedPane;
-    private javax.swing.JTable jTable;
     private javax.swing.JPasswordField password_input;
     private javax.swing.JTextField port_input;
+    private javax.swing.JComboBox<String> schema_combo_box;
+    private javax.swing.JTabbedPane tab_pane;
     private javax.swing.JTextField username_input;
     // End of variables declaration//GEN-END:variables
 }

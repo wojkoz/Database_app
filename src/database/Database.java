@@ -12,6 +12,7 @@ public class Database {
     private ResultSet rs;
     private final ArrayList<String> schemas, tables, columns;
     private final HashMap<String, ArrayList<String>> columnsData;
+    private String currentScheme;
     
     public Database() throws ClassNotFoundException, SQLException{
 
@@ -33,30 +34,41 @@ public class Database {
         
         setSchemasName(md);
         
-        setTablesName(md, "dziekanat");
+        currentScheme = schemas.get(1);
         
-        setColumnsName(md, "dziekanat");
-        
-        setColumnData("dziekanat", "studenci", "imie");
+        setTablesName(md, currentScheme);
         
         
+        
+        //pobieranie danych do kolumn z tabel currentScheme
+        for(int i=0; i < tables.size(); i++){
+            setColumnsName(md, currentScheme, tables.get(i));
+            for(int j=0; j < columns.size(); j++){
+                setColumnData(currentScheme, tables.get(i), columns.get(j));
+            }
+            columns.clear();
+        }
+        
+        System.out.println(columnsData.get("id_adresu"));
+
         closeConnection();
   
     }
+  
     
     private void setColumnData(String scheme_name, String table_name, String column_name) throws SQLException{
         
         ArrayList<String> data = new ArrayList();
         
-        rs = st.executeQuery("SELECT "+ column_name +" FROM "+ scheme_name +"." + table_name);
+        rs = st.executeQuery("SELECT * FROM "+ scheme_name +"." + table_name);
         while(rs.next()){
             data.add(rs.getString(column_name));
         }
-        columnsData.put(table_name, data);
+        columnsData.put(column_name, data);
     }
     
-    private void setColumnsName(DatabaseMetaData md, String scheme) throws SQLException{
-        rs = md.getColumns(null, scheme, tables.get(0), "%");
+    private void setColumnsName(DatabaseMetaData md, String scheme, String table_name) throws SQLException{
+        rs = md.getColumns(null, scheme, table_name, "%");
         while(rs.next()){
             columns.add(rs.getString(4));
         }
@@ -81,5 +93,21 @@ public class Database {
     public void closeConnection() throws SQLException{
         st.close();
         db.close();
+    }
+    
+      public ArrayList<String> getSchemas(){
+        return schemas;
+    }
+    
+    public String[] getColumns(){
+        return columns.toArray(new String[columns.size()]);
+    }
+    
+    public HashMap<String, ArrayList<String>> getColumnsData(){
+        return columnsData;
+    }
+    
+    public void setCurrentScheme(String scheme){
+        currentScheme = scheme;
     }
 }
