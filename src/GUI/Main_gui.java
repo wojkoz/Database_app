@@ -5,6 +5,9 @@
  */
 package GUI;
 import database.Database;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,6 +21,7 @@ public class Main_gui extends javax.swing.JFrame {
      */
     public Main_gui() {
         initComponents();
+        close_connection_button.setVisible(false);
     }
 
     /**
@@ -164,13 +168,34 @@ public class Main_gui extends javax.swing.JFrame {
     }//GEN-LAST:event_port_inputActionPerformed
 
     private void connect_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connect_buttonMouseClicked
-        db = new Database();
-        db.result();
+        try {
+            db = new Database();
+            db.result();
+            
+            //buttons visibility
+            close_connection_button.setVisible(true);
+            connect_button.setVisible(false);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         String[][] data = { 
+            { "Kundan Kumar Jha", "4031", "CSE" }, 
+            { "Anand Jha", "6014", "IT" } 
+        }; 
+  
+        // Column Names 
+        String[] columnNames = { "Name", "Roll Number", "Department" }; 
         
+        
+
     }//GEN-LAST:event_connect_buttonMouseClicked
 
     private void close_connection_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_connection_buttonActionPerformed
-        db.closeConnection();
+
+        connect_button.setVisible(true);
+        close_connection_button.setVisible(false);
     }//GEN-LAST:event_close_connection_buttonActionPerformed
 
     /**
