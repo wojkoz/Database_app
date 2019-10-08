@@ -5,6 +5,8 @@
  */
 package GUI;
 import database.Database;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,11 +100,6 @@ public class Main_gui extends javax.swing.JFrame {
         });
 
         schema_combo_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        schema_combo_box.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                schema_combo_boxActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -166,6 +163,7 @@ public class Main_gui extends javax.swing.JFrame {
 
     private void username_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_username_inputActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_username_inputActionPerformed
 
     private void ip_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ip_inputActionPerformed
@@ -179,7 +177,7 @@ public class Main_gui extends javax.swing.JFrame {
     private void connect_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connect_buttonMouseClicked
         try {
             db = new Database();
-            db.result();
+
             
             //buttons visibility
             close_connection_button.setVisible(true);
@@ -191,29 +189,48 @@ public class Main_gui extends javax.swing.JFrame {
         }
          
         
-        
-  
-        // Column Names 
-        String[] columnNames = { "Name", "Roll Number", "Department" }; 
-        
         tab_pane.setVisible(true);
-        
-        HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
-        
-        String[][] data = db.getRecords("studenci", "nr_albumu");
-        
-        tab_pane.addTab("studenci", new JScrollPane(new JTable(data, db.getColumnsNames("studenci"))));
         
         //combo box
         schema_combo_box.setVisible(true);
+        
         ArrayList<String> tmp_schemas = db.getSchemas();
         //setting combox list
         tmp_schemas.forEach((i)-> schema_combo_box.addItem(i));
         
         
+        db.setCurrentScheme(schema_combo_box.getSelectedItem().toString());
+        
+        makeTabs();
 
     }//GEN-LAST:event_connect_buttonMouseClicked
 
+    private void makeTabs(){
+        HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
+        int table_count = db.getCountTables();
+        String[] columns, tables = db.getTablenames();
+        String[][] data = null;
+        
+        for(int i=0; i<table_count; i++){
+            columns = db.getColumnsNames(tables[i]);
+           
+            for(int j=0; j<columns.length; j++){
+                 data = db.getRecords(tables[i], columns[j]);
+            }
+            
+            tab_pane.addTab(tables[i], new JScrollPane(new JTable(data, db.getColumnsNames(tables[i]))//blocking editing cell by user
+                        {
+                            private static final long serialVersionUID = 1L;
+
+                            public boolean isCellEditable(int row, int column) {                
+                                    return false;               
+                            }
+                        }
+            ));
+        }   
+        
+    }
+    
     private void close_connection_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_connection_buttonActionPerformed
 
         connect_button.setVisible(true);
@@ -222,10 +239,6 @@ public class Main_gui extends javax.swing.JFrame {
         //usuwanie zakładek
         tab_pane.remove(0);
     }//GEN-LAST:event_close_connection_buttonActionPerformed
-
-    private void schema_combo_boxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schema_combo_boxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_schema_combo_boxActionPerformed
 
     /**
      * @param args the command line arguments
