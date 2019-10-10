@@ -208,23 +208,23 @@ public class Main_gui extends javax.swing.JFrame {
         db.setCurrentScheme(schema_combo_box.getSelectedItem().toString());
         
         makeTabs();
-
+        
+        isItemChanged = true;
     }//GEN-LAST:event_connect_buttonMouseClicked
 
     private void makeTabs(){
-        //HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
         int table_count = db.getCountTables();
         String[] columns, tables = db.getTableNames();
         String[][] data = null;
         
         for(int i=0; i<table_count; i++){
             columns = db.getColumnsNames(tables[i]);
-           
+           //jtable getrow error
             for (String column : columns) {
                 data = db.getRecords(tables[i], column);
             }
             
-            tab_pane.addTab(tables[i], new JScrollPane(new JTable(data, db.getColumnsNames(tables[i]))//blocking editing cell by user
+            tab_pane.addTab(tables[i], new JScrollPane(new JTable(data, columns)//blocking editing cell by user
                         {
                             private static final long serialVersionUID = 1L;
 
@@ -234,8 +234,6 @@ public class Main_gui extends javax.swing.JFrame {
                         }
             ));
         }  
-        
-        isItemChanged = true;
         
     }
     
@@ -265,11 +263,12 @@ public class Main_gui extends javax.swing.JFrame {
         if(isItemChanged){
             db.setCurrentScheme(schema_combo_box.getSelectedItem().toString());
             try {
+                db.clearArrays();
                 db.updateData();
                 clean();
                 
                 makeTabs();
-                isItemChanged = false;
+               // isItemChanged = false;
                 
             } catch (SQLException ex) {
                 Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);

@@ -100,8 +100,12 @@ public class Database {
         st.close();
         db.close();
         //cleaning variables
-        columns.clear();
         schemas.clear();
+        clearArrays();
+
+    }
+    public void clearArrays(){
+        columns.clear();
         table_column_data.clear();
         tables.clear();
     }
