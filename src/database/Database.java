@@ -70,7 +70,6 @@ public class Database {
         while(rs.next()){
             data.add(rs.getString(column_name));
         }
-        //columnsData.put(column_name, data);
         return data;
     }
     
@@ -100,6 +99,11 @@ public class Database {
     public void closeConnection() throws SQLException{
         st.close();
         db.close();
+        //cleaning variables
+        columns.clear();
+        schemas.clear();
+        table_column_data.clear();
+        tables.clear();
     }
     
       public ArrayList<String> getSchemas(){
@@ -114,7 +118,7 @@ public class Database {
     public void setCurrentScheme(String scheme){
         currentScheme = scheme;
     }
-    public String[] getTablenames(){
+    public String[] getTableNames(){
         return tables.toArray(new String[tables.size()]);
     }
     

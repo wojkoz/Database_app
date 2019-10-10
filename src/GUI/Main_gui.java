@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 public class Main_gui extends javax.swing.JFrame {
     
     private Database db;
+    private Boolean isItemChanged = false;
 
     /**
      * Creates new form Main_gui
@@ -100,6 +101,11 @@ public class Main_gui extends javax.swing.JFrame {
         });
 
         schema_combo_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        schema_combo_box.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                schema_combo_boxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -206,16 +212,16 @@ public class Main_gui extends javax.swing.JFrame {
     }//GEN-LAST:event_connect_buttonMouseClicked
 
     private void makeTabs(){
-        HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
+        //HashMap<String, HashMap<String, ArrayList<String>>> tmp_columns_data = db.getTableColumnsData();
         int table_count = db.getCountTables();
-        String[] columns, tables = db.getTablenames();
+        String[] columns, tables = db.getTableNames();
         String[][] data = null;
         
         for(int i=0; i<table_count; i++){
             columns = db.getColumnsNames(tables[i]);
            
-            for(int j=0; j<columns.length; j++){
-                 data = db.getRecords(tables[i], columns[j]);
+            for (String column : columns) {
+                data = db.getRecords(tables[i], column);
             }
             
             tab_pane.addTab(tables[i], new JScrollPane(new JTable(data, db.getColumnsNames(tables[i]))//blocking editing cell by user
@@ -227,18 +233,49 @@ public class Main_gui extends javax.swing.JFrame {
                             }
                         }
             ));
-        }   
+        }  
+        
+        isItemChanged = true;
         
     }
     
     private void close_connection_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_close_connection_buttonActionPerformed
-
+        
+        isItemChanged = false;
+        
+        try {
+            db.closeConnection();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
         connect_button.setVisible(true);
         close_connection_button.setVisible(false);
+        schema_combo_box.setVisible(false);
+        schema_combo_box.removeAllItems();
         
-        //usuwanie zakładek
-        tab_pane.remove(0);
+        clean();
+        
     }//GEN-LAST:event_close_connection_buttonActionPerformed
+
+    private void clean(){
+        //usuwanie zakładek
+        tab_pane.removeAll();  
+    }
+    private void schema_combo_boxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schema_combo_boxActionPerformed
+        if(isItemChanged){
+            db.setCurrentScheme(schema_combo_box.getSelectedItem().toString());
+            try {
+                db.updateData();
+                clean();
+                
+                makeTabs();
+                isItemChanged = false;
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_schema_combo_boxActionPerformed
 
     /**
      * @param args the command line arguments
