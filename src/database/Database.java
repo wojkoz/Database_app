@@ -19,7 +19,7 @@ public class Database {
 
         Class.forName("org.postgresql.Driver");
 
-        db = DriverManager.getConnection("jdbc:postgresql://195.150.230.210:5434/2019_koziol_wojciech", "2019_koziol_wojciech", "wojtek9");
+        db = DriverManager.getConnection("jdbc:postgresql://195.150.230.210:5434/2019_koziol_wojciech", "2019_koziol_wojciech", "password");
         st = db.createStatement();
         
         schemas = new ArrayList<>();
