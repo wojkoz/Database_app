@@ -4,16 +4,21 @@
  * and open the template in the editor.
  */
 package GUI;
+import ExceptionHandlers.LoginException;
 import database.Database;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import model.UserData;
 
 
 /**
@@ -23,6 +28,7 @@ import javax.swing.table.DefaultTableModel;
 public class Main_gui extends javax.swing.JFrame {
     
     private Database db;
+    private UserData user;
     private Boolean isItemChanged = false;
 
     /**
@@ -59,6 +65,8 @@ public class Main_gui extends javax.swing.JFrame {
         schema_combo_box = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(1200, 800));
+        setSize(new java.awt.Dimension(1200, 800));
 
         connect_button.setText("Connect");
         connect_button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -93,6 +101,8 @@ public class Main_gui extends javax.swing.JFrame {
 
         jLabel4.setText("Port");
 
+        password_input.setMinimumSize(new java.awt.Dimension(15, 24));
+
         close_connection_button.setText("Close connection");
         close_connection_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -112,26 +122,28 @@ public class Main_gui extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(49, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(close_connection_button)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(994, Short.MAX_VALUE)
+                        .addComponent(close_connection_button))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(51, 51, 51)
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
+                        .addComponent(username_input, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(21, 21, 21)
+                        .addComponent(password_input, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
-                        .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
+                        .addComponent(ip_input, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel4)
                         .addGap(18, 18, 18)
                         .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(connect_button)))
                 .addGap(34, 34, 34))
             .addGroup(layout.createSequentialGroup()
@@ -181,8 +193,14 @@ public class Main_gui extends javax.swing.JFrame {
     }//GEN-LAST:event_port_inputActionPerformed
 
     private void connect_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connect_buttonMouseClicked
-        try {
-            db = new Database();
+       if(checkInputFields()){
+           setDatabaseConnection();
+       }
+    }//GEN-LAST:event_connect_buttonMouseClicked
+
+    private void setDatabaseConnection(){
+         try {
+            db = new Database(user);
 
             
             //buttons visibility
@@ -192,6 +210,9 @@ public class Main_gui extends javax.swing.JFrame {
             Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        } catch(LoginException ex){
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "alert", JOptionPane.ERROR_MESSAGE);
+            return;
         }
          
         
@@ -210,8 +231,61 @@ public class Main_gui extends javax.swing.JFrame {
         makeTabs();
         
         isItemChanged = true;
-    }//GEN-LAST:event_connect_buttonMouseClicked
+    }
+    
+    private boolean checkInputFields(){
+        String name, password, ip;
+        Integer port = 0;
+        
+        
+        
+        name = username_input.getText();
+        password = new String(password_input.getPassword());
+        ip = ip_input.getText();
 
+        //username
+        if("".equals(name)){
+            JOptionPane.showMessageDialog(null, "Error empty username field", "alert", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        //password
+        if("".equals(password)){
+            JOptionPane.showMessageDialog(null, "Error empty password field", "alert", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        //port
+        try{
+            port = Integer.parseInt(port_input.getText());
+        }catch(NumberFormatException nfe){
+            JOptionPane.showMessageDialog(null, "Error wrong or empty port field", "alert", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        //IP
+        if(checkIpRegex(ip)){
+            user = new UserData(name, password, ip, port);
+            return true;
+        }else{
+            JOptionPane.showMessageDialog(null, "Error wrong or empty ip field", "alert", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }     
+    }
+    
+    private boolean checkIpRegex(String line){
+
+      final String pattern = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+
+      // Create a Pattern object
+      Pattern r = Pattern.compile(pattern);
+
+      // Now create matcher object.
+      Matcher m = r.matcher(line);
+      if (m.find( )) {
+         return true;
+      }else {
+         return false;
+      }
+    }
+    
     private void makeTabs(){
         int table_count = db.getCountTables();
         String[] columns, tables = db.getTableNames();
@@ -250,6 +324,9 @@ public class Main_gui extends javax.swing.JFrame {
         close_connection_button.setVisible(false);
         schema_combo_box.setVisible(false);
         schema_combo_box.removeAllItems();
+        
+        password_input.setText("");
+        username_input.setText("");
         
         clean();
         

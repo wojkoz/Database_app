@@ -1,7 +1,9 @@
 package database;
+import ExceptionHandlers.LoginException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import model.UserData;
 
 
 
@@ -15,12 +17,17 @@ public class Database {
     private String currentScheme;
     private DatabaseMetaData md;
     
-    public Database() throws ClassNotFoundException, SQLException{
+    public Database(UserData user) throws ClassNotFoundException, SQLException{
 
         Class.forName("org.postgresql.Driver");
 
-        db = DriverManager.getConnection("jdbc:postgresql://195.150.230.210:5434/2019_koziol_wojciech", "2019_koziol_wojciech", "password");
-        st = db.createStatement();
+        try{
+            db = DriverManager.getConnection("jdbc:postgresql://"+ user.getIp() +":"+ user.getPort() +"/"+ user.getUsername(), user.getUsername(), user.getPassword());
+        }catch(Exception e){
+            throw new LoginException("Cannot login user: " + user.getUsername(), e);
+        }
+        //db = DriverManager.getConnection("jdbc:postgresql://195.150.230.210:5434/2019_koziol_wojciech", "2019_koziol_wojciech", password);
+        st = db.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         
         schemas = new ArrayList<>();
         tables = new ArrayList<>();
@@ -67,6 +74,7 @@ public class Database {
         ArrayList<String> data = new ArrayList();
         
         rs = st.executeQuery("SELECT * FROM "+ scheme_name +"." + table_name);
+        rs.beforeFirst();
         while(rs.next()){
             data.add(rs.getString(column_name));
         }
@@ -75,6 +83,7 @@ public class Database {
     
     private void setColumnsName(String scheme, String table_name) throws SQLException{
         rs = md.getColumns(null, scheme, table_name, "%");
+        rs.beforeFirst();
         while(rs.next()){
             columns.add(rs.getString(4));
         }
@@ -83,12 +92,14 @@ public class Database {
     private void setTablesName(String scheme) throws SQLException{
         final String[] types = {"TABLE"};
         rs = md.getTables(null, scheme, "%", types);
+        rs.beforeFirst();
         while(rs.next()){
             tables.add(rs.getString(3));
         }
     }
     private void setSchemasName() throws SQLException{
         rs = md.getSchemas(null, "%");
+        rs.beforeFirst();
         while(rs.next()){
             if(!rs.getString(1).equalsIgnoreCase("pg_catalog") && !rs.getString(1).equalsIgnoreCase("information_schema")){
                 schemas.add(rs.getString(1));
