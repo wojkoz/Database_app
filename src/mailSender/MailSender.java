@@ -5,6 +5,7 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
+import javax.swing.JOptionPane;
 
 public class MailSender implements Runnable{
     public static final String MAIL_SCHEME = "roznosci", MAIL_TABLE = "subskrypcje";
@@ -51,7 +52,7 @@ public class MailSender implements Runnable{
 
             Transport.send(message);
 
-            System.out.println("Done");
+            JOptionPane.showMessageDialog(null, "Done", "MailSender", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (MessagingException e) {
             e.printStackTrace();
