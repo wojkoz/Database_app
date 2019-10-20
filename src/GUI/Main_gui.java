@@ -6,6 +6,7 @@
 package GUI;
 import ExceptionHandlers.LoginException;
 import database.Database;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import mailSender.MailSender;
 import model.UserData;
 
 
@@ -39,6 +41,8 @@ public class Main_gui extends javax.swing.JFrame {
         close_connection_button.setVisible(false);
         schema_combo_box.removeAllItems();
         schema_combo_box.setVisible(false);
+        email_container.setVisible(false);
+        send_mails_button.setVisible(false);
         
     }
 
@@ -63,6 +67,8 @@ public class Main_gui extends javax.swing.JFrame {
         close_connection_button = new javax.swing.JButton();
         tab_pane = new javax.swing.JTabbedPane();
         schema_combo_box = new javax.swing.JComboBox<>();
+        send_mails_button = new javax.swing.JButton();
+        email_container = new javax.swing.JTabbedPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1200, 800));
@@ -72,24 +78,6 @@ public class Main_gui extends javax.swing.JFrame {
         connect_button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 connect_buttonMouseClicked(evt);
-            }
-        });
-
-        username_input.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                username_inputActionPerformed(evt);
-            }
-        });
-
-        ip_input.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ip_inputActionPerformed(evt);
-            }
-        });
-
-        port_input.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                port_inputActionPerformed(evt);
             }
         });
 
@@ -117,15 +105,19 @@ public class Main_gui extends javax.swing.JFrame {
             }
         });
 
+        send_mails_button.setText("Send mails");
+        send_mails_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                send_mails_buttonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(994, Short.MAX_VALUE)
-                        .addComponent(close_connection_button))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(51, 51, 51)
                         .addComponent(jLabel1)
@@ -144,14 +136,26 @@ public class Main_gui extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(port_input, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(connect_button)))
+                        .addComponent(connect_button))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(39, 39, 39)
+                                .addComponent(email_container, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(90, 90, 90))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGap(46, 46, 46)
+                                .addComponent(send_mails_button)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(schema_combo_box, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tab_pane, javax.swing.GroupLayout.PREFERRED_SIZE, 716, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(close_connection_button)))))
                 .addGap(34, 34, 34))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(schema_combo_box, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tab_pane, javax.swing.GroupLayout.PREFERRED_SIZE, 716, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -170,27 +174,18 @@ public class Main_gui extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(schema_combo_box, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addComponent(tab_pane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(email_container)
+                    .addComponent(tab_pane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(close_connection_button)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(close_connection_button)
+                    .addComponent(send_mails_button))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void username_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_username_inputActionPerformed
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_username_inputActionPerformed
-
-    private void ip_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ip_inputActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_ip_inputActionPerformed
-
-    private void port_inputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_port_inputActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_port_inputActionPerformed
 
     private void connect_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connect_buttonMouseClicked
        if(checkInputFields()){
@@ -231,13 +226,17 @@ public class Main_gui extends javax.swing.JFrame {
         makeTabs();
         
         isItemChanged = true;
+        
+        //mails
+        email_container.setVisible(true);
+        send_mails_button.setVisible(true);
+        
+        fillMailConitainer();
     }
     
     private boolean checkInputFields(){
         String name, password, ip;
         Integer port = 0;
-        
-        
         
         name = username_input.getText();
         password = new String(password_input.getPassword());
@@ -279,11 +278,45 @@ public class Main_gui extends javax.swing.JFrame {
 
       // Now create matcher object.
       Matcher m = r.matcher(line);
-      if (m.find( )) {
-         return true;
-      }else {
-         return false;
-      }
+        return m.find( );
+    }
+    
+    private void fillMailConitainer(){
+        String[][] data = null;
+        String[] columnName = {"Emails for sending spam"};
+        
+        ArrayList<String> mails;
+        try {
+            mails = db.getMails();
+            
+            if(mails.size()>0){
+                data = new String[mails.size()][1];
+
+                for(int i=0; i<mails.size(); i++){
+                    data[i][0] = mails.get(i);
+                }
+            }           
+            
+            
+            //tab with emails
+            email_container.add(new JScrollPane(
+                    new JTable(data, columnName)
+                    {
+                        private static final long serialVersionUID = 1L;
+                        
+                        public boolean isCellEditable(int row, int column) {                
+                                return false;               
+                        }
+                    }
+            ));
+            email_container.setTitleAt(0, "emails");
+            
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
     }
     
     private void makeTabs(){
@@ -328,6 +361,12 @@ public class Main_gui extends javax.swing.JFrame {
         password_input.setText("");
         username_input.setText("");
         
+        //mail
+        send_mails_button.setVisible(false);
+        email_container.setVisible(false);
+        
+        email_container.removeAll();
+        
         clean();
         
     }//GEN-LAST:event_close_connection_buttonActionPerformed
@@ -352,6 +391,19 @@ public class Main_gui extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_schema_combo_boxActionPerformed
+
+    private void send_mails_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_send_mails_buttonActionPerformed
+        
+        try {
+            MailSender ms = new MailSender();
+            ms.makeEmailList(db.getMails());
+            Thread t = new Thread(ms);
+            t.start();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_send_mails_buttonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -391,6 +443,7 @@ public class Main_gui extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton close_connection_button;
     private javax.swing.JButton connect_button;
+    private javax.swing.JTabbedPane email_container;
     private javax.swing.JTextField ip_input;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -399,7 +452,10 @@ public class Main_gui extends javax.swing.JFrame {
     private javax.swing.JPasswordField password_input;
     private javax.swing.JTextField port_input;
     private javax.swing.JComboBox<String> schema_combo_box;
+    private javax.swing.JButton send_mails_button;
     private javax.swing.JTabbedPane tab_pane;
     private javax.swing.JTextField username_input;
     // End of variables declaration//GEN-END:variables
+
+    
 }
