@@ -3,6 +3,7 @@ import ExceptionHandlers.LoginException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import mailSender.MailSender;
 import model.UserData;
 
 
@@ -15,7 +16,10 @@ public class Database {
     private final ArrayList<String> schemas, tables, columns;
     private final HashMap<String, HashMap<String, ArrayList<String>>> table_column_data;
     private String currentScheme;
-    private DatabaseMetaData md;
+    private final DatabaseMetaData md;
+    //mail
+    
+    
     
     public Database(UserData user) throws ClassNotFoundException, SQLException{
 
@@ -33,6 +37,7 @@ public class Database {
         tables = new ArrayList<>();
         columns = new ArrayList<>();
         table_column_data = new HashMap<>();
+        
         
         md = db.getMetaData();
         setFirstConnection();
@@ -121,15 +126,10 @@ public class Database {
         tables.clear();
     }
     
-      public ArrayList<String> getSchemas(){
+    public ArrayList<String> getSchemas(){
         return schemas;
     }
-    
-    
-    public HashMap<String, HashMap<String, ArrayList<String>>> getTableColumnsData(){
-        return table_column_data;
-    }
-    
+
     public void setCurrentScheme(String scheme){
         currentScheme = scheme;
     }
@@ -167,5 +167,17 @@ public class Database {
         }
 
         return tmp;
+    }
+    
+    public ArrayList<String> getMails() throws SQLException{
+        ArrayList<String> mails = new ArrayList<>();
+        
+        rs = st.executeQuery("SELECT * FROM "+ MailSender.MAIL_SCHEME +"." + MailSender.MAIL_TABLE + " WHERE " + MailSender.MAIL_COLUMNS[1] + " = true" );
+        rs.beforeFirst();
+        while(rs.next()){
+            mails.add(rs.getString(1));
+        }
+        
+        return mails;
     }
 }
