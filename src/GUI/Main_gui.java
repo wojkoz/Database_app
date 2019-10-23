@@ -6,19 +6,14 @@
 package GUI;
 import ExceptionHandlers.LoginException;
 import database.Database;
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import mailSender.MailSender;
 import model.UserData;
 
@@ -394,14 +389,37 @@ public class Main_gui extends javax.swing.JFrame {
 
     private void send_mails_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_send_mails_buttonActionPerformed
         
-        try {
-            MailSender ms = new MailSender();
+      JTextField sub = new JTextField(5);
+      JTextArea text = new JTextArea();
+
+      JPanel myPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+      myPanel.add(new JLabel("Subject:"));
+      myPanel.add(sub);
+      myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+      myPanel.add(new JLabel("Text:"));
+      myPanel.add(text);
+
+      int result = JOptionPane.showConfirmDialog(null, new JScrollPane(myPanel), 
+               "Please Enter subject and text of email", JOptionPane.OK_OPTION);
+      if (result == JOptionPane.OK_OPTION) {
+          if("".equals(sub.getText())){
+              sub.setText("Template subject");
+          }
+          if("".equals(text.getText())){
+              text.setText("Template text, \n Goodbye.");
+          }
+
+         try {
+            MailSender ms = new MailSender(sub.getText(), text.getText());
             ms.makeEmailList(db.getMails());
             Thread t = new Thread(ms);
             t.start();
         } catch (SQLException ex) {
             Logger.getLogger(Main_gui.class.getName()).log(Level.SEVERE, null, ex);
         }
+      }
+        
+        
         
     }//GEN-LAST:event_send_mails_buttonActionPerformed
 

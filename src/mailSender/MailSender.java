@@ -14,7 +14,12 @@ public class MailSender implements Runnable{
     private final String USERNAME = "testtest54321123456@gmail.com";
     private final String PASSWORD = "testTest";
     
-    private String sendTo;
+    private String sendTo, subject, text;
+
+    public MailSender(String subject, String text) {
+        this.subject = subject;
+        this.text = text;
+    }
     
     public void makeEmailList( ArrayList<String> list){
         sendTo = list.toString().replace("[", "");
@@ -46,9 +51,8 @@ public class MailSender implements Runnable{
                     Message.RecipientType.TO,
                     InternetAddress.parse(sendTo)
             );
-            message.setSubject("Testing Gmail TLS");
-            message.setText("Dear Mail Crawler,"
-                    + "\n\n Please do not spam my email!");
+            message.setSubject(subject);
+            message.setText(text);
 
             Transport.send(message);
 
